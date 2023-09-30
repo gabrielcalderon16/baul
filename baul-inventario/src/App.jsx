@@ -6,13 +6,8 @@ function App() {
   return (
     <>
       <div className="container">
-        <header
-          className="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom"
-        >
-          <a
-            href="/"
-            className="d-flex align-items-center col-md-3 mb-2 mb-md-0 text-dark text-decoration-none"
-          >
+        <header className="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start py-3 mb-4 border-bottom">
+          <a href="/" className="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
             <img
               src={chest}
               width="40"
@@ -21,12 +16,15 @@ function App() {
             />
           </a>
 
-          <ul
-            className="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0"
-          ></ul>
+          <ul className="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+          </ul>
 
-          <div className="col-md-3 text-end">
-            <button className="boton-redondo" data-bs-toggle="modal" data-bs-target="#modalFormLista">+</button>
+          <form className="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search">
+            <input type="search" className="form-control form-control-dark text-bg-light" placeholder="Buscar..." aria-label="Search" />
+          </form>
+
+          <div className="text-end">
+            <button type="button" className="btn btn-plus"  data-bs-toggle="modal" data-bs-target="#modalFormLista">+</button>
           </div>
         </header>
       </div>
@@ -48,7 +46,7 @@ function App() {
             <h1 className="display-5 fw-bold lh-1 mb-5">
               Maneja tus items de forma facil
             </h1>
-            <div class="mt-5">
+            <div className="mt-5">
               <p className="lead">
                 ¡Bienvenido a Baul, la aplicación de gestión de inventario inspirada en el objeto más importante de Minecraft!
               </p>
