@@ -1,14 +1,44 @@
 import "./scss/styles.scss";
 import chestOpen from './assets/Chest.webp'
 import chest from './assets/Logo.png'
-import { Modal, Form } from 'react-bootstrap'
-import { useState } from "react";
+import { Modal, Form, Badge, ListGroup } from 'react-bootstrap'
+import { useState, useEffect } from "react";
 
 function App() {
   const [validated, setValidated] = useState(false);
   const [esEditar, setearEditar] = useState(false);
   const [idTarea, setIdTarea] = useState('');
   const [values, setValues] = useState({});
+
+  const ListItems = () => {
+    const [listadoItems, setListadoItems] = useState([]);
+
+    useEffect(() => {
+      // Obtener los items del LocalStorage
+      const listadoItems = obtenerTareas()
+      const itemsOrdenados = ordenarItems(listadoItems)
+      console.log('items ordenados: ', itemsOrdenados)
+      setListadoItems(itemsOrdenados);
+    })
+  
+    return (
+      <div>
+        <h1>Items:</h1>
+        <ul>
+          {listadoItems.map((item) => (
+            <div>
+              <p>
+                categoria: {item.categoria}
+              </p>
+              <p>
+                {/* for each `item.items`*/}
+              </p>
+            </div>
+          ))}
+        </ul>
+      </div>
+    );
+  };
   
   // Modal
   const [mostrandoseModal, setearModal] = useState(false)
@@ -86,6 +116,26 @@ function App() {
     setValues({})
   }
 
+
+  const ordenarItems = (items) => {
+
+    const callback = (item)  => item.categoria;
+
+    const resultado = items.reduce((grupo, item) => {
+      const categoria = callback(item);
+      if (!grupo[categoria]) {
+        grupo[categoria] = [];
+      }
+      grupo[categoria].push(item);
+      return grupo;
+    }, {});
+
+    const array = Object.entries(resultado).map(([categoria, items]) => ({categoria, items}));
+    
+    return array
+
+  };
+  
   // function ordenarTareas(tareas) {
   //   tareas.sort(function (a, b) {
   //     let fechaA = new Date(a.fecha.dia + " " + a.fecha.horaInicio);
@@ -286,7 +336,6 @@ function App() {
             </h1>
             <div className="mt-5">
               <p className="lead">
-                ¡Bienvenido a Baul, la aplicación de gestión de inventario inspirada en el objeto más importante de Minecraft!
               </p>
               <p className="lead">
                 Baul es la herramienta perfecta para organizar y controlar tus productos, artículos y activos de manera eficiente.
@@ -317,6 +366,45 @@ function App() {
 
         {/* Lista */}
         <div id="grupo-listas">
+          <ListItems />
+          {/* <ListGroup as="ol" numbered>
+            <ListGroup.Item
+              as="li"
+              className="d-flex justify-content-between align-items-start"
+            >
+              <div className="ms-2 me-auto">
+                <div className="fw-bold">Subheading</div>
+                Cras justo odio
+              </div>
+              <Badge bg="primary" pill>
+                14
+              </Badge>
+            </ListGroup.Item>
+            <ListGroup.Item
+              as="li"
+              className="d-flex justify-content-between align-items-start"
+            >
+              <div className="ms-2 me-auto">
+                <div className="fw-bold">Subheading</div>
+                Cras justo odio
+              </div>
+              <Badge bg="primary" pill>
+                14
+              </Badge>
+            </ListGroup.Item>
+            <ListGroup.Item
+              as="li"
+              className="d-flex justify-content-between align-items-start"
+            >
+              <div className="ms-2 me-auto">
+                <div className="fw-bold">Subheading</div>
+                Cras justo odio
+              </div>
+              <Badge bg="primary" pill>
+                14
+              </Badge>
+            </ListGroup.Item>
+          </ListGroup> */}
         </div>
 
       </div>
