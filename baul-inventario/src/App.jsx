@@ -1,35 +1,90 @@
 import "./scss/styles.scss";
 import chestOpen from './assets/Chest.webp'
 import chest from './assets/Logo.png'
-// import * as bootstrap from "bootstrap";
-import { Modal, Button } from 'react-bootstrap'
+import { Modal, Form } from 'react-bootstrap'
 import { useState } from "react";
 
 function App() {
-
+  const [validated, setValidated] = useState(false);
+  const [esEditar, setearEditar] = useState(false);
+  const [idTarea, setIdTarea] = useState('');
+  const [values, setValues] = useState({});
+  
   // Modal
   const [mostrandoseModal, setearModal] = useState(false)
+
+  const onFormChange = (e) => {
+    const name = e.target.name;
+    const value = e.target.value;
+    setValues({ ...values, [name]: value });
+    // console.log(name, value);
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const form = event.currentTarget;
+
+    // Checkear valores
+    if (form.checkValidity() === true) {
+      setValidated(true);
+      generarItem(values);
+      // console.log('values: ', values)
+    }
+  };
+
+  function generarHex() {
+    let n = Math.floor(Math.random() * 65536);
+    let s = n.toString(16).padStart(4, "0");
+    return s;
+  }
+
+  function generarId() {
+    let s1 = generarHex();
+    let s2 = generarHex();
+    let s3 = generarHex();
+    let s4 = generarHex();
+    let id = s1 + "-" + s2 + "-" + s3 + "-" + s4;
+    return id;
+  }
+
+  const generarItem = (item) => {
+    let tareas = obtenerTareas();
+    console.log('se generara un item, tareas actuales: ', tareas);
+
+    const itemAEnviar = {
+      ...item,
+      id: generarId()
+    }
+
+    tareas.push(itemAEnviar);
+
+    guardarTareas(tareas);
+    // Ocultar modal
+    iniciarModal();
+    limpiarInputs();
+  }
+
   const iniciarModal = () => {
     return setearModal(!mostrandoseModal)
   }
 
-  // let esEditar = false;
-  // let idTareaEditar = 0;
-
-  // function obtenerTareas() {
+  function obtenerTareas() {
+    const listaTareas = localStorage.getItem("tareas")
+    ? JSON.parse(localStorage.getItem("tareas"))
+    : [];
     
-  //   const listaTareas = localStorage.getItem("tareas")
-  //   ? JSON.parse(localStorage.getItem("tareas"))
-  //   : [];
-    
-  //   $('#contador').text(`0 / ${listaTareas.length}`)
-  //   return listaTareas;
-  // }
+    return listaTareas;
+  }
 
-  // function guardarTareas(tareas) {
-  //   localStorage.setItem("tareas", JSON.stringify(tareas));
-  //   $('#contador').text(`0 / ${tareas.length}`)
-  // }
+  function guardarTareas(tareas) {
+    localStorage.setItem("tareas", JSON.stringify(tareas));
+  }
+
+  function limpiarInputs() {
+    setValues({})
+  }
 
   // function ordenarTareas(tareas) {
   //   tareas.sort(function (a, b) {
@@ -57,21 +112,6 @@ function App() {
   //     return objeto;
   //   });
   //   return resultado;
-  // }
-
-  // function generarHex() {
-  //   let n = Math.floor(Math.random() * 65536);
-  //   let s = n.toString(16).padStart(4, "0");
-  //   return s;
-  // }
-
-  // function generarId() {
-  //   let s1 = generarHex();
-  //   let s2 = generarHex();
-  //   let s3 = generarHex();
-  //   let s4 = generarHex();
-  //   let id = s1 + "-" + s2 + "-" + s3 + "-" + s4;
-  //   return id;
   // }
 
   // function mostrarTareas() {
@@ -117,23 +157,6 @@ function App() {
   //   });
   // }
 
-  // function crearTarea(titulo, fecha) {
-  //   let tareas = obtenerTareas();
-
-  //   let tarea = {
-  //     id: generarId(),
-  //     check: false,
-  //     titulo,
-  //     fecha,
-  //   };
-
-  //   tareas.push(tarea);
-
-  //   guardarTareas(tareas);
-  //   mostrarTareas();
-  //   modal.hide();
-  // }
-
   // function editarTarea(id) {
   //   let tareas = obtenerTareas();
   //   let tarea = tareas.filter((tarea) => tarea.id === id)[0];
@@ -146,16 +169,17 @@ function App() {
   //   modal.show();
   // }
 
-  // function eliminarTarea(id) {
-  //   let tareas = obtenerTareas();
+  function eliminarTarea(id) {
+    let tareas = obtenerTareas();
 
-  //   const tareasFiltradas = tareas.filter((tarea) => tarea.id !== id);
+    const tareasFiltradas = tareas.filter((tarea) => tarea.id !== id);
 
-  //   if (confirm("¿Estás seguro de que quieres eliminar esta tarea?")) {
-  //     guardarTareas(tareasFiltradas);
-  //     mostrarTareas();
-  //   }
-  // }
+    // TODO: agregar modal de confirmacion
+    if (confirm("¿Estás seguro de que quieres eliminar esta tarea?")) {
+      guardarTareas(tareasFiltradas);
+      // mostrarTareas();
+    }
+  }
 
   // $(document).ready(function () {
   //   mostrarTareas();
@@ -163,13 +187,6 @@ function App() {
 
   // Editar tarea.
   // $(document).on("click", ".bi-pencil", function (e) {
-  //   e.stopPropagation();
-  //   let id = $(this).attr("id");
-  //   editarTarea(id.split("_")[1]);
-  // });
-
-  // Marcar tarea cómo resuelta.
-  // $(document).on("click", ".list-group-item", function (e) {
   //   e.stopPropagation();
   //   let id = $(this).attr("id");
   //   editarTarea(id.split("_")[1]);
@@ -216,17 +233,6 @@ function App() {
 
   //   esEditar = false;
   //   idTareaEditar = 0;
-  // }
-
-  // $("#modalFormLista").on("hidden.bs.modal", function () {
-  //   limpiarInputs();
-  // });
-
-  // function limpiarInputs() {
-  //   $("#titulo").val("");
-  //   $("#fecha").val("");
-  //   $("#fecha-inicio").val("");
-  //   $("#fecha-fin").val("");
   // }
 
   return (
@@ -316,42 +322,38 @@ function App() {
       </div>
 
       {/* Modal con formulario para agregar items */}
-      {/* 
-        titulo
-        descripcion
-        categoria
-        cantidad
-      */}
       <Modal show={mostrandoseModal}>
         <Modal.Header closeButton onClick={iniciarModal}>
           <Modal.Title>Item</Modal.Title>
         </Modal.Header>
-        <Modal.Body>
-          <div className="modal-body p-5 pt-0 pb-0">
-            <form id="form-item">
-              <div className="form-floating mb-3">
-                <input type="text" className="form-control rounded-3" id="titulo" placeholder="Ingresa un nombre facil de identificar" required />
-                <label for="titulo">Nombre del ítem</label>
-              </div>
-              <div className="form-floating mb-3">
-                <input type="text" className="form-control rounded-3" id="descripcion" placeholder="Detalla las características del item, como su material o algun dato que le describa facilmente"
-                  required />
-                <label for="descripcion">Descripción del ítem</label>
-              </div>
-              <div className="form-floating mb-3">
-                <input type="time" className="form-control rounded-3" id="categoria" required />
-                <label for="fecha-fin">Categoría del item</label>
-              </div>
-              <div className="form-floating">
-                <input type="date" className="form-control rounded-3" id="cantidad" placeholder="Ingresa la cantidad de items disponibles" required />
-                <label for="fecha">Cantidad de items</label>
-              </div>
-            </form>
-          </div>
-        </Modal.Body>
-        <Modal.Footer>
-          <button className="w-100 mb-2 btn btn-lg rounded-3 btn-warning" type="submit">Agregar</button>
-        </Modal.Footer>
+        <Form noValidate validated={validated} onSubmit={handleSubmit}>
+          <Modal.Body>
+            <div className="modal-body p-5 pt-0 pb-0">
+              <Form.Group className="mb-3" controlId="controlNombre">
+                <Form.Label>Nombre del ítem</Form.Label>
+                <Form.Control name="nombre" onChange={onFormChange} required type="text" placeholder="Ingresa un nombre facil de identificar" />
+              </Form.Group>
+
+              <Form.Group className="mb-3" controlId="controlDescripción">
+                <Form.Label>Descripción del item</Form.Label>
+                <Form.Control name="descripcion" onChange={onFormChange} required type="textarea" placeholder="Detalla las características del item, como su material o algun dato que le describa facilmente" />
+              </Form.Group>
+
+              <Form.Group className="mb-3" controlId="controlCategoria">
+                <Form.Label>Categoría del item</Form.Label>
+                <Form.Control name="categoria" onChange={onFormChange} required type="text" placeholder="Ingresa la categoría" />
+              </Form.Group>
+
+              <Form.Group className="mb-3" controlId="controlCantidad">
+                <Form.Label>Cantidad de items</Form.Label>
+                <Form.Control name="cantidad" onChange={onFormChange} required type="number" placeholder="Ingresa la cantidad de items disponibles" />
+              </Form.Group>
+            </div>
+          </Modal.Body>
+          <Modal.Footer>
+            <button className="w-100 mb-2 btn btn-lg rounded-3 btn-warning" type="submit">Agregar</button>
+          </Modal.Footer>
+        </Form>
       </Modal>
 
       {/* Pie de página */}
