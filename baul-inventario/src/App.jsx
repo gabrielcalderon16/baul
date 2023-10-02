@@ -9,19 +9,37 @@ function App() {
   // TODO: agregar toast cuando se agrega, modifica o elimina un item.
   // TODO: agregar compatibilidad con el buscador.
   // TODO: agregar compatibilidad con el ordenamiento.
+  // TODO: actualiar el color del boton del form.
+  // TODO: actualizar el contador en tiempo real.
 
-  const [validated, setValidated] = useState(false);
+  // Editar
   const [esEditar, setearEditar] = useState(false);
   const [idItem, setIdItem] = useState('');
 
-  // Values form
+  // Valore del formulario
   const [formName, setFormName] = useState('');
   const [formDescription, setFormDescription] = useState('');
   const [formQuantity, setFormQuantity] = useState('');
   const [formCategory, setFormCategory] = useState('');
 
+  // Modal
+  const [validated, setValidated] = useState(false);
+  const [mostrandoseModal, setearModal] = useState(false)
+
   const ListItems = () => {
     const [listadoItems, setListadoItems] = useState([]);
+
+    function eliminarItem(id) {
+      let items = obtenerItems();
+
+      const itemsFiltrados = items.filter((item) => item.id !== id);
+      const itemsOrdenados = ordenarItems(itemsFiltrados)
+
+      if (confirm("¿Estás seguro de que quieres eliminar este item?")) {
+        setListadoItems(itemsOrdenados);
+        guardarItems(itemsFiltrados);
+      }
+    }
 
     useEffect(() => {
       // Obtener los items del LocalStorage
@@ -33,8 +51,8 @@ function App() {
   
     return (
       <div>
-        {listadoItems.map((categoria, index) => (
-          <div key={categoria + index}>
+        {listadoItems.map((categoria, i) => (
+          <div key={categoria + i}>
             <div className="row">
               <div className="col-2"></div>
               <div className="col">
@@ -43,7 +61,7 @@ function App() {
             </div>
 
             <ListGroup as="ol" numbered>
-              {categoria.items.map((item, i) => (
+              {categoria.items.map((item) => (
                 <ListGroup.Item
                   as="li"
                   key={item.id}
@@ -70,13 +88,11 @@ function App() {
               ))}
             </ListGroup>
           </div>
-        ))}
+        ))
+        }
       </div>
     );
   };
-  
-  // Modal
-  const [mostrandoseModal, setearModal] = useState(false)
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -182,27 +198,14 @@ function App() {
   function editarItem(item) {
     setearEditar(true);
     setIdItem(item.id);
-    // let items = obtenerItems();
-    // let itemEditar = items.filter((i) => i.id === item.id)[0];
 
+    // Actualizar valores del formulario
     setFormName(item.nombre);
     setFormDescription(item.descripcion);
     setFormQuantity(item.cantidad);
     setFormCategory(item.categoria);
 
-    // TODO: limpiar esEditar e idItem
     iniciarModal();
-  }
-
-  // TODO: solventar reactividad del componente List con el LS.
-  function eliminarItem(id) {
-    let items = obtenerItems();
-
-    const itemsFiltrados = items.filter((item) => item.id !== id);
-
-    if (confirm("¿Estás seguro de que quieres eliminar este item?")) {
-      guardarItems(itemsFiltrados);
-    }
   }
 
   function guardarItemEditado(item) {
@@ -247,7 +250,7 @@ function App() {
             <input id="buscar" type="search" className="form-control form-control-dark text-bg-light" placeholder="Buscar..." aria-label="Search" />
           </form>
           <form className="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search">
-            <select class="form-select bg-light" id="ordenar" required>
+            <select className="form-select bg-light" id="ordenar" required>
               <option value="">Ordenar...</option>
               <option>Alfabeticamente</option>
             </select>
@@ -296,6 +299,7 @@ function App() {
           </div>
           <div className="col-4 col-md-2">
             <div className="container-contador" id="contador">
+              <span>10</span>
             </div>
           </div>
         </div>
