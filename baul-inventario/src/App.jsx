@@ -3,6 +3,8 @@ import chestOpen from './assets/Chest.webp'
 import chest from './assets/Logo.png'
 import { Modal, Form, Badge, ListGroup } from 'react-bootstrap'
 import { useState, useEffect } from "react";
+import { BsPencilSquare, BsTrash } from 'react-icons/bs';
+
 
 function App() {
   const [validated, setValidated] = useState(false);
@@ -19,23 +21,48 @@ function App() {
       const itemsOrdenados = ordenarItems(listadoItems)
       console.log('items ordenados: ', itemsOrdenados)
       setListadoItems(itemsOrdenados);
-    })
+    }, []);
   
     return (
       <div>
-        <h1>Items:</h1>
-        <ul>
-          {listadoItems.map((item) => (
-            <div>
-              <p>
-                categoria: {item.categoria}
-              </p>
-              <p>
-                {/* for each `item.items`*/}
-              </p>
+        {listadoItems.map((categoria, index) => (
+          <div key={categoria + index}>
+            <div className="row">
+              <div className="col-2"></div>
+              <div className="col">
+                <h3 className="text-muted font-weight-light">{categoria.categoria}:</h3>
+              </div>
             </div>
-          ))}
-        </ul>
+
+            <ListGroup as="ol" numbered>
+              {categoria.items.map((item, i) => (
+                <ListGroup.Item
+                  as="li"
+                  key={item.id}
+                  className="d-flex justify-content-between align-items-start"
+                >
+                  <div className="ms-2 me-auto">
+                    <div className="fw-bold">{item.nombre}</div>
+                    {item.descripcion}
+                  </div>
+                  <div className="row">
+                    <div className="col-3">
+                      <BsPencilSquare />
+                    </div>
+                    <div className="col-3">
+                      <BsTrash />
+                    </div>
+                    <div className="col-3">
+                      <Badge className="text-end" bg="primary" pill>
+                        {item.cantidad}
+                      </Badge>
+                    </div>
+                  </div>
+                </ListGroup.Item>
+              ))}
+            </ListGroup>
+          </div>
+        ))}
       </div>
     );
   };
@@ -47,7 +74,6 @@ function App() {
     const name = e.target.name;
     const value = e.target.value;
     setValues({ ...values, [name]: value });
-    // console.log(name, value);
   };
 
   const handleSubmit = (event) => {
@@ -60,7 +86,6 @@ function App() {
     if (form.checkValidity() === true) {
       setValidated(true);
       generarItem(values);
-      // console.log('values: ', values)
     }
   };
 
@@ -87,10 +112,9 @@ function App() {
       ...item,
       id: generarId()
     }
-
     tareas.push(itemAEnviar);
-
     guardarTareas(tareas);
+
     // Ocultar modal
     iniciarModal();
     limpiarInputs();
@@ -136,77 +160,6 @@ function App() {
 
   };
   
-  // function ordenarTareas(tareas) {
-  //   tareas.sort(function (a, b) {
-  //     let fechaA = new Date(a.fecha.dia + " " + a.fecha.horaInicio);
-  //     let fechaB = new Date(b.fecha.dia + " " + b.fecha.horaInicio);
-  //     return fechaA > fechaB ? -1 : fechaA < fechaB ? 1 : 0;
-  //   });
-  //   let agrupado = tareas.reduce(function (acumulador, tarea) {
-  //     let dia = tarea.fecha.dia;
-  //     if (!acumulador[dia]) {
-  //       acumulador[dia] = [];
-  //     }
-  //     acumulador[dia].push(tarea);
-  //     return acumulador;
-  //   }, {});
-  //   let resultado = Object.entries(agrupado).map(function (par) {
-  //     let dia = par[0];
-  //     let tareas = par[1];
-  //     let objeto = {
-  //       titulo: dia,
-  //       fecha: {
-  //         dia: tareas,
-  //       },
-  //     };
-  //     return objeto;
-  //   });
-  //   return resultado;
-  // }
-
-  // function mostrarTareas() {
-  //   let tareas = obtenerTareas();
-  //   $("#grupo-listas").empty();
-
-  //   const tareasOrdenadas = ordenarTareas(tareas);
-
-  //   tareasOrdenadas.forEach((diaEnGeneral) => {
-  //     let tareasRenderizadas;
-
-  //     diaEnGeneral.fecha.dia.forEach((tareaEspecifico, i) => {
-  //       const tareaRenderizada = `
-  //         <label class="list-group-item d-flex gap-3">
-  //           <input class="form-check-input flex-shrink-0" ${tareaEspecifico.check ? 'checked' : ''} type="checkbox" value="" style="font-size: 1.375em;">
-  //           <span class="pt-1 form-checked-content">
-  //             <strong>${tareaEspecifico.titulo}</strong>
-  //             <small class="d-block text-muted">
-  //               <i class="bi bi-calendar-event-fill"></i>
-  //               ${tareaEspecifico.fecha.horaInicio} – ${tareaEspecifico.fecha.horaFin}
-  //             </small>
-  //           </span>
-  //           <div class="ms-auto p-2 d-flex flex-nowrap">
-  //             <i class="bi bi-pencil p-2" style="color: #ffc107;" id="edit_${tareaEspecifico.id}"></i>
-  //             <i class="bi bi-x-lg p-2" style="color: red;" id="delete_${tareaEspecifico.id}"></i>
-  //           </div>
-  //         </label>
-  //       `;
-  //       tareasRenderizadas = tareasRenderizadas
-  //         ? tareasRenderizadas + tareaRenderizada
-  //         : tareaRenderizada;
-
-  //       if (i === diaEnGeneral.fecha.dia.length - 1) {
-  //         const lista = `
-  //           <div class="list-group w-auto">
-  //             <p class="mt-sm-0">${diaEnGeneral.titulo}</p>
-  //             ${tareasRenderizadas}
-  //           </div>
-  //         `;
-  //         $("#grupo-listas").append(lista);
-  //       }
-  //     });
-  //   });
-  // }
-
   // function editarTarea(id) {
   //   let tareas = obtenerTareas();
   //   let tarea = tareas.filter((tarea) => tarea.id === id)[0];
@@ -227,13 +180,8 @@ function App() {
     // TODO: agregar modal de confirmacion
     if (confirm("¿Estás seguro de que quieres eliminar esta tarea?")) {
       guardarTareas(tareasFiltradas);
-      // mostrarTareas();
     }
   }
-
-  // $(document).ready(function () {
-  //   mostrarTareas();
-  // });
 
   // Editar tarea.
   // $(document).on("click", ".bi-pencil", function (e) {
@@ -360,52 +308,8 @@ function App() {
     
         <hr className="col-12" />
         
-        <div className="container">
-          <p className="mt-sm-0 mt-md-3 mx-auto">Listado.</p>
-        </div>
-
         {/* Lista */}
-        <div id="grupo-listas">
-          <ListItems />
-          {/* <ListGroup as="ol" numbered>
-            <ListGroup.Item
-              as="li"
-              className="d-flex justify-content-between align-items-start"
-            >
-              <div className="ms-2 me-auto">
-                <div className="fw-bold">Subheading</div>
-                Cras justo odio
-              </div>
-              <Badge bg="primary" pill>
-                14
-              </Badge>
-            </ListGroup.Item>
-            <ListGroup.Item
-              as="li"
-              className="d-flex justify-content-between align-items-start"
-            >
-              <div className="ms-2 me-auto">
-                <div className="fw-bold">Subheading</div>
-                Cras justo odio
-              </div>
-              <Badge bg="primary" pill>
-                14
-              </Badge>
-            </ListGroup.Item>
-            <ListGroup.Item
-              as="li"
-              className="d-flex justify-content-between align-items-start"
-            >
-              <div className="ms-2 me-auto">
-                <div className="fw-bold">Subheading</div>
-                Cras justo odio
-              </div>
-              <Badge bg="primary" pill>
-                14
-              </Badge>
-            </ListGroup.Item>
-          </ListGroup> */}
-        </div>
+        <ListItems />
 
       </div>
 
