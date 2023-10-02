@@ -8,8 +8,7 @@ import { BsPencilSquare, BsTrash } from 'react-icons/bs';
 function App() {
   // TODO: agregar compatibilidad con el buscador.
   // TODO: agregar compatibilidad con el ordenamiento.
-  // TODO: actualiar el color del boton del form.
-  // TODO: actualizar el contador en tiempo real.
+  // TODO: agregar texto cuando no hay items.
 
   // Notificaciones
   const [notificacion, setearNotificacion] = useState(false);
@@ -24,13 +23,19 @@ function App() {
   const [formDescription, setFormDescription] = useState('');
   const [formQuantity, setFormQuantity] = useState('');
   const [formCategory, setFormCategory] = useState('');
+  const [cantidadItems, setCantidadItems] = useState(0);
 
   // Modal
   const [validated, setValidated] = useState(false);
   const [mostrandoseModal, setearModal] = useState(false)
 
   const ListItems = () => {
-    const [listadoItems, setListadoItems] = useState([]);
+    const [listadoItems, setListado] = useState([]);
+
+    const setListadoItems = (i) => {
+      setListado(i)
+      setCantidadItems(i.length)
+    }
 
     function eliminarItem(id) {
       let items = obtenerItems();
@@ -57,12 +62,12 @@ function App() {
       <div>
         {listadoItems.map((categoria, i) => (
           <div key={categoria + i}>
-            <div className="row">
-              <div className="col-2"></div>
-              <div className="col">
-                <h3 className="text-muted font-weight-light">{categoria.categoria}:</h3>
-              </div>
-            </div>
+            <span className="row p-0 m-0">
+              <span className="col-2"></span>
+              <span className="col">
+                <h4 className="text-muted font-weight-light">{categoria.categoria}:</h4>
+              </span>
+            </span>
 
             <ListGroup as="ol" numbered>
               {categoria.items.map((item) => (
@@ -83,7 +88,7 @@ function App() {
                       <BsTrash onClick={() => eliminarItem(item.id)}/>
                     </div>
                     <div className="col-3">
-                      <Badge className="text-end" bg="primary" pill>
+                      <Badge className="text-end background-primary-color" pill>
                         {item.cantidad}
                       </Badge>
                     </div>
@@ -269,7 +274,7 @@ function App() {
           </form>
 
           <div className="text-end">
-            <button type="button" className="btn btn-plus" onClick={iniciarModal}>+</button>
+            <button type="button" className="btn background-primary-color" onClick={iniciarModal}>+</button>
           </div>
         </header>
       </div>
@@ -311,7 +316,7 @@ function App() {
           </div>
           <div className="col-4 col-md-2">
             <div className="container-contador" id="contador">
-              <span>10</span>
+              <span>{cantidadItems}</span>
             </div>
           </div>
         </div>
@@ -378,7 +383,7 @@ function App() {
             </div>
           </Modal.Body>
           <Modal.Footer>
-            <button className="w-100 mb-2 btn btn-lg rounded-3 btn-warning" type="submit">{esEditar ? 'Actualizar' : 'Agregar'}</button>
+            <button className="w-100 mb-2 btn btn-lg rounded-3 background-primary-color" type="submit">{esEditar ? 'Actualizar' : 'Agregar'}</button>
           </Modal.Footer>
         </Form>
       </Modal>
