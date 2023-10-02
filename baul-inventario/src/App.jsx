@@ -8,7 +8,6 @@ import { BsPencilSquare, BsTrash } from 'react-icons/bs';
 function App() {
   // TODO: agregar compatibilidad con el buscador.
   // TODO: agregar compatibilidad con el ordenamiento.
-  // TODO: agregar texto cuando no hay items.
 
   // Notificaciones
   const [notificacion, setearNotificacion] = useState(false);
@@ -60,7 +59,7 @@ function App() {
   
     return (
       <div>
-        {listadoItems.map((categoria, i) => (
+        {listadoItems && listadoItems.length ? listadoItems.map((categoria, i) => (
           <div key={categoria + i}>
             <span className="row p-0 m-0">
               <span className="col-2"></span>
@@ -97,7 +96,14 @@ function App() {
               ))}
             </ListGroup>
           </div>
-        ))
+        )) : (
+          <div className="row p-5">
+              <span className="col-12 text-center">
+                <h4 className="text-muted font-weight-light">No se encontraron items, prueba agregando uno.</h4>
+              </span>
+          </div>
+        )
+          
         }
       </div>
     );
