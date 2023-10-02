@@ -1,16 +1,19 @@
 import "./scss/styles.scss";
 import chestOpen from './assets/Chest.webp'
 import chest from './assets/Logo.png'
-import { Modal, Form, Badge, ListGroup } from 'react-bootstrap'
+import { Modal, Form, Badge, ListGroup, Toast, ToastContainer } from 'react-bootstrap'
 import { useState, useEffect } from "react";
 import { BsPencilSquare, BsTrash } from 'react-icons/bs';
 
 function App() {
-  // TODO: agregar toast cuando se agrega, modifica o elimina un item.
   // TODO: agregar compatibilidad con el buscador.
   // TODO: agregar compatibilidad con el ordenamiento.
   // TODO: actualiar el color del boton del form.
   // TODO: actualizar el contador en tiempo real.
+
+  // Notificaciones
+  const [notificacion, setearNotificacion] = useState(false);
+  const [textoNotificacion, setearTextoNotificacion] = useState(false);
 
   // Editar
   const [esEditar, setearEditar] = useState(false);
@@ -38,6 +41,7 @@ function App() {
       if (confirm("¿Estás seguro de que quieres eliminar este item?")) {
         setListadoItems(itemsOrdenados);
         guardarItems(itemsFiltrados);
+        mostrarNotificacion('Se ha eliminado un item correctamente');
       }
     }
 
@@ -151,6 +155,7 @@ function App() {
     // Ocultar modal
     iniciarModal();
     limpiarInputs();
+    mostrarNotificacion('Se ha agregado un item correctamente');
   }
 
   const iniciarModal = () => {
@@ -228,6 +233,13 @@ function App() {
     iniciarModal()
     setearEditar(false)
     setIdItem('')
+    mostrarNotificacion('Se ha editado un item correctamente');
+  }
+
+  function mostrarNotificacion(texto) {
+    console.log('se llamo a mostrarNotificacion', texto)
+    setearNotificacion(true);
+    setearTextoNotificacion(texto);
   }
 
   return (
@@ -384,6 +396,26 @@ function App() {
           </div>
         </div>
       </footer>
+
+      <ToastContainer position="bottom-end" className="position-fixed p-3" style={{ zIndex: 1 }}>
+        <Toast 
+          onClose={() => setearNotificacion(false)}
+          show={notificacion}
+          delay={3000}
+          autohide
+        >
+          <Toast.Header>
+            <img
+              src="holder.js/20x20?text=%20"
+              className="rounded me-2"
+              alt=""
+            />
+            <strong className="me-auto">Exitoso</strong>
+            <small>Ahora</small>
+          </Toast.Header>
+          <Toast.Body>{textoNotificacion}</Toast.Body>
+        </Toast>
+      </ToastContainer>
     </>
   );
 }
