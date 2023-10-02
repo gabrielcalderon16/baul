@@ -6,9 +6,6 @@ import { useState, useEffect } from "react";
 import { BsPencilSquare, BsTrash } from 'react-icons/bs';
 
 function App() {
-  // TODO: agregar compatibilidad con el buscador.
-  // TODO: agregar compatibilidad con el ordenamiento.
-
   // Notificaciones
   const [notificacion, setearNotificacion] = useState(false);
   const [textoNotificacion, setearTextoNotificacion] = useState(false);
@@ -17,12 +14,11 @@ function App() {
   const [esEditar, setearEditar] = useState(false);
   const [idItem, setIdItem] = useState('');
 
-  // Valore del formulario
+  // Valor del formulario
   const [formName, setFormName] = useState('');
   const [formDescription, setFormDescription] = useState('');
   const [formQuantity, setFormQuantity] = useState('');
   const [formCategory, setFormCategory] = useState('');
-  // const [cantidadItems, setCantidadItems] = useState(0);
 
   // Modal
   const [validated, setValidated] = useState(false);
@@ -44,6 +40,15 @@ function App() {
         const itemsOrdenados = obtenerItemsOrdenados();
         setListadoItems(itemsOrdenados);
       }
+    };
+
+    // Ordenar items por categoria (segun direccion de ordenado)
+    const ordenarLista = (direccion) => {
+      const itemsOrdenados = [...listadoItems];
+      itemsOrdenados.sort((a, b) =>
+        a.categoria.localeCompare(b.categoria) * (direccion === "asc" ? 1 : -1)
+      );
+      setListadoItems(itemsOrdenados);
     };
 
     function eliminarItem(id) {
@@ -74,7 +79,6 @@ function App() {
     return (
       <div className="container">
         {/* Filtros */}
-
         <header className="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start py-3 mb-4 border-bottom">
           <a href="/" className="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
             <img
@@ -99,9 +103,14 @@ function App() {
             />
           </form>
           <form className="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search">
-            <select className="form-select bg-light" id="ordenar" required>
+            <select
+              className="form-select bg-light"
+              id="ordenar"
+              onChange={(event) => ordenarLista(event?.target.value)}
+            >
               <option value="">Ordenar...</option>
-              <option>Alfabeticamente</option>
+              <option value="asc">Ascendente</option>
+              <option value="desc">Descendente</option>
             </select>
           </form>
 
@@ -222,7 +231,6 @@ function App() {
 
   const generarItem = (item) => {
     let items = obtenerItems();
-    console.log('se generara un item, items actuales: ', items);
 
     const itemAEnviar = {
       ...item,
@@ -316,7 +324,6 @@ function App() {
   }
 
   function mostrarNotificacion(texto) {
-    console.log('se llamo a mostrarNotificacion', texto)
     setearNotificacion(true);
     setearTextoNotificacion(texto);
   }
