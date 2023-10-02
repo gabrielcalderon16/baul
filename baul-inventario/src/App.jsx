@@ -22,19 +22,31 @@ function App() {
   const [formDescription, setFormDescription] = useState('');
   const [formQuantity, setFormQuantity] = useState('');
   const [formCategory, setFormCategory] = useState('');
-  const [cantidadItems, setCantidadItems] = useState(0);
+  // const [cantidadItems, setCantidadItems] = useState(0);
 
   // Modal
   const [validated, setValidated] = useState(false);
   const [mostrandoseModal, setearModal] = useState(false)
 
   const ListItems = () => {
-    const [listadoItems, setListado] = useState([]);
+    const [listadoItems, setListadoItems] = useState([]);
+    const [busqueda, setBusqueda] = useState("");
 
-    const setListadoItems = (i) => {
-      setListado(i)
-      setCantidadItems(i.length)
-    }
+    const filtrarItems = (e) => {
+      const valor = e.target.value; //  valor del input
+      setBusqueda(valor);
+      if (valor !== "") {
+        // Filtrar los items que incluyan el valor en su categoría
+        const itemsFiltrados = listadoItems.filter((item) =>
+          item.categoria.toLowerCase().includes(valor.toLowerCase())
+        );
+        setListadoItems(itemsFiltrados);
+      } else {
+        // Si el valor está vacío, mostrar todos los items
+        const itemsOrdenados = obtenerItemsOrdenados();
+        setListadoItems(itemsOrdenados);
+      }
+    };
 
     function eliminarItem(id) {
       let items = obtenerItems();
@@ -49,62 +61,120 @@ function App() {
       }
     }
 
-    useEffect(() => {
-      // Obtener los items del LocalStorage
+    const obtenerItemsOrdenados = () => {
       const listadoItems = obtenerItems()
       const itemsOrdenados = ordenarItems(listadoItems)
-      console.log('items ordenados: ', itemsOrdenados)
+      return itemsOrdenados
+    }
+
+    useEffect(() => {
+      const itemsOrdenados = obtenerItemsOrdenados()
+      // Obtener los items del LocalStorage
       setListadoItems(itemsOrdenados);
     }, [localStorage.getItem('items')]);
   
     return (
-      <div>
-        {listadoItems && listadoItems.length ? listadoItems.map((categoria, i) => (
-          <div key={categoria + i}>
-            <span className="row p-0 m-0">
-              <span className="col-2"></span>
-              <span className="col">
-                <h4 className="text-muted font-weight-light">{categoria.categoria}:</h4>
-              </span>
-            </span>
+      <div className="container">
+        {/* Filtros */}
 
-            <ListGroup as="ol" numbered>
-              {categoria.items.map((item) => (
-                <ListGroup.Item
-                  as="li"
-                  key={item.id}
-                  className="d-flex justify-content-between align-items-start"
-                >
-                  <div className="ms-2 me-auto">
-                    <div className="fw-bold">{item.nombre}</div>
-                    {item.descripcion}
-                  </div>
-                  <div className="row">
-                    <div className="col-3">
-                      <BsPencilSquare onClick={() => editarItem(item)}/>
-                    </div>
-                    <div className="col-3">
-                      <BsTrash onClick={() => eliminarItem(item.id)}/>
-                    </div>
-                    <div className="col-3">
-                      <Badge className="text-end background-primary-color" pill>
-                        {item.cantidad}
-                      </Badge>
-                    </div>
-                  </div>
-                </ListGroup.Item>
-              ))}
-            </ListGroup>
+        <header className="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start py-3 mb-4 border-bottom">
+          <a href="/" className="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
+            <img
+              src={chest}
+              width="40"
+              height="45"
+              alt="Baul Logo"
+            />
+          </a>
+
+          <ul className="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+          </ul>
+
+          <form className="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search">
+            <input
+              id="buscar"
+              type="search"
+              className="form-control form-control-dark text-bg-light"
+              placeholder="Buscar..."
+              aria-label="Search"
+              onChange={() => filtrarItems}
+            />
+          </form>
+          <form className="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search">
+            <select className="form-select bg-light" id="ordenar" required>
+              <option value="">Ordenar...</option>
+              <option>Alfabeticamente</option>
+            </select>
+          </form>
+
+          <div className="text-end">
+            <button type="button" className="btn background-primary-color" onClick={iniciarModal}>+</button>
           </div>
-        )) : (
-          <div className="row p-5">
-              <span className="col-12 text-center">
-                <h4 className="text-muted font-weight-light">No se encontraron items, prueba agregando uno.</h4>
+        </header>
+
+        {/* Encabezado */}
+        <div className="row">
+          <div className="col-8 col-md-10">
+            <h1><i className="bi bi-list-task"></i> Items</h1>
+          </div>
+          <div className="col-4 col-md-2">
+            <div className="container-contador" id="contador">
+              <span>{listadoItems.length}</span>
+            </div>
+          </div>
+        </div>
+    
+        <hr className="col-12" />
+        
+        {/* Lista */}
+        <div id="lista">
+          {
+            listadoItems && listadoItems.length ? listadoItems.map((categoria, i) => (
+            <div key={categoria + i}>
+              <span className="row p-0 m-0">
+                <span className="col-2"></span>
+                <span className="col">
+                  <h4 className="text-muted font-weight-light">{categoria.categoria}:</h4>
+                </span>
               </span>
-          </div>
-        )
-          
-        }
+
+              <ListGroup as="ol" numbered>
+                {categoria.items.map((item) => (
+                  <ListGroup.Item
+                    as="li"
+                    key={item.id}
+                    className="d-flex justify-content-between align-items-start"
+                  >
+                    <div className="ms-2 me-auto">
+                      <div className="fw-bold">{item.nombre}</div>
+                      {item.descripcion}
+                    </div>
+                    <div className="row">
+                      <div className="col-3">
+                        <BsPencilSquare onClick={() => editarItem(item)}/>
+                      </div>
+                      <div className="col-3">
+                        <BsTrash onClick={() => eliminarItem(item.id)}/>
+                      </div>
+                      <div className="col-3">
+                        <Badge className="text-end background-primary-color" pill>
+                          {item.cantidad}
+                        </Badge>
+                      </div>
+                    </div>
+                  </ListGroup.Item>
+                ))}
+              </ListGroup>
+            </div>
+              )) : (
+                <div className="row p-5">
+                    <span className="col-12 text-center">
+                      <h4 className="text-muted font-weight-light">No se encontraron items, prueba agregando uno.</h4>
+                    </span>
+                </div>
+              )
+          }
+        </div>
       </div>
     );
   };
@@ -269,18 +339,8 @@ function App() {
           <ul className="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
           </ul>
 
-          <form className="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search">
-            <input id="buscar" type="search" className="form-control form-control-dark text-bg-light" placeholder="Buscar..." aria-label="Search" />
-          </form>
-          <form className="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search">
-            <select className="form-select bg-light" id="ordenar" required>
-              <option value="">Ordenar...</option>
-              <option>Alfabeticamente</option>
-            </select>
-          </form>
-
           <div className="text-end">
-            <button type="button" className="btn background-primary-color" onClick={iniciarModal}>+</button>
+            <h4 className="text-muted font-weight-light">Baul - Gestióna tu inventario</h4>
           </div>
         </header>
       </div>
@@ -314,25 +374,7 @@ function App() {
       </div>
 
       {/* listado de items */}
-      <div className="container">
-
-        <div className="row">
-          <div className="col-8 col-md-10">
-            <h1><i className="bi bi-list-task"></i> Items</h1>
-          </div>
-          <div className="col-4 col-md-2">
-            <div className="container-contador" id="contador">
-              <span>{cantidadItems}</span>
-            </div>
-          </div>
-        </div>
-    
-        <hr className="col-12" />
-        
-        {/* Lista */}
-        <ListItems />
-
-      </div>
+      <ListItems />
 
       {/* Modal con formulario para agregar items */}
       <Modal show={mostrandoseModal}>
