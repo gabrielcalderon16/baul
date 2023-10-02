@@ -9,10 +9,16 @@ function App() {
   // TODO: agregar toast cuando se agrega, modifica o elimina un item.
   // TODO: agregar compatibilidad con el buscador.
   // TODO: agregar compatibilidad con el ordenamiento.
+
   const [validated, setValidated] = useState(false);
   const [esEditar, setearEditar] = useState(false);
   const [idItem, setIdItem] = useState('');
-  const [values, setValues] = useState({});
+
+  // Values form
+  const [formName, setFormName] = useState('');
+  const [formDescription, setFormDescription] = useState('');
+  const [formQuantity, setFormQuantity] = useState('');
+  const [formCategory, setFormCategory] = useState('');
 
   const ListItems = () => {
     const [listadoItems, setListadoItems] = useState([]);
@@ -23,7 +29,7 @@ function App() {
       const itemsOrdenados = ordenarItems(listadoItems)
       console.log('items ordenados: ', itemsOrdenados)
       setListadoItems(itemsOrdenados);
-    }, []);
+    }, [localStorage.getItem('items')]);
   
     return (
       <div>
@@ -72,12 +78,6 @@ function App() {
   // Modal
   const [mostrandoseModal, setearModal] = useState(false)
 
-  const onFormChange = (e) => {
-    const name = e.target.name;
-    const value = e.target.value;
-    setValues({ ...values, [name]: value });
-  };
-
   const handleSubmit = (event) => {
     event.preventDefault();
     event.stopPropagation();
@@ -86,8 +86,13 @@ function App() {
 
     // Checkear valores
     if (form.checkValidity() === true) {
-      setValidated(true);
-      generarItem(values);
+      setValidated(false);
+      generarItem({
+        nombre: formName,
+        descripcion: formDescription,
+        categoria: formCategory,
+        cantidad: formQuantity
+      });
     }
   };
 
@@ -139,9 +144,11 @@ function App() {
   }
 
   function limpiarInputs() {
-    setValues({})
+    setFormName('');
+    setFormDescription('');
+    setFormQuantity('');
+    setFormCategory('');
   }
-
 
   const ordenarItems = (items) => {
 
@@ -317,27 +324,52 @@ function App() {
         <Modal.Header closeButton onClick={iniciarModal}>
           <Modal.Title>Item</Modal.Title>
         </Modal.Header>
-        <Form noValidate validated={validated} onSubmit={handleSubmit}>
+        <Form noValidate validated={validated} onSubmit={handleSubmit} >
           <Modal.Body>
             <div className="modal-body p-5 pt-0 pb-0">
               <Form.Group className="mb-3" controlId="controlNombre">
                 <Form.Label>Nombre del ítem</Form.Label>
-                <Form.Control name="nombre" onChange={onFormChange} required type="text" placeholder="Ingresa un nombre facil de identificar" />
+                <Form.Control
+                  name="nombre"
+                  value={formName}
+                  onChange={(event) => setFormName(event?.target.value)}
+                  required 
+                  type="text"
+                  placeholder="Ingresa un nombre facil de identificar"
+                />
               </Form.Group>
 
               <Form.Group className="mb-3" controlId="controlDescripción">
                 <Form.Label>Descripción del item</Form.Label>
-                <Form.Control name="descripcion" onChange={onFormChange} required type="textarea" placeholder="Detalla las características del item, como su material o algun dato que le describa facilmente" />
+                <Form.Control 
+                  name="descripcion"
+                  value={formDescription}
+                  onChange={(event) => setFormDescription(event?.target.value)}
+                  required type="textarea" 
+                  placeholder="Detalla las características del item, como su material o algun dato que le describa facilmente"
+                />
               </Form.Group>
 
               <Form.Group className="mb-3" controlId="controlCategoria">
                 <Form.Label>Categoría del item</Form.Label>
-                <Form.Control name="categoria" onChange={onFormChange} required type="text" placeholder="Ingresa la categoría" />
+                <Form.Control 
+                  name="categoria"
+                  value={formCategory}
+                  onChange={(event) => setFormCategory(event?.target.value)}
+                  required type="text" 
+                  placeholder="Ingresa la categoría"
+                />
               </Form.Group>
 
               <Form.Group className="mb-3" controlId="controlCantidad">
                 <Form.Label>Cantidad de items</Form.Label>
-                <Form.Control name="cantidad" onChange={onFormChange} required type="number" placeholder="Ingresa la cantidad de items disponibles" />
+                <Form.Control 
+                  name="cantidad"
+                  value={formQuantity}
+                  onChange={(event) => setFormQuantity(event?.target.value)}
+                  required type="number" 
+                  placeholder="Ingresa la cantidad de items disponibles"
+                />
               </Form.Group>
             </div>
           </Modal.Body>
