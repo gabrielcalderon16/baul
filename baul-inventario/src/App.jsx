@@ -30,15 +30,13 @@ function App() {
 
   const ListItems = () => {
     const [listadoItems, setListadoItems] = useState([]);
-    const [busqueda, setBusqueda] = useState("");
 
-    const filtrarItems = (e) => {
-      const valor = e.target.value; //  valor del input
-      setBusqueda(valor);
-      if (valor !== "") {
+    // Busqueda de items por categoria
+    const filtrarItems = (value) => {
+      if (value !== "") {
         // Filtrar los items que incluyan el valor en su categoría
         const itemsFiltrados = listadoItems.filter((item) =>
-          item.categoria.toLowerCase().includes(valor.toLowerCase())
+          item.categoria.toLowerCase().includes(value.toLowerCase())
         );
         setListadoItems(itemsFiltrados);
       } else {
@@ -95,9 +93,9 @@ function App() {
               id="buscar"
               type="search"
               className="form-control form-control-dark text-bg-light"
-              placeholder="Buscar..."
+              placeholder="Buscar por categoria..."
               aria-label="Search"
-              onChange={() => filtrarItems}
+              onChange={(event) => filtrarItems(event?.target.value)}
             />
           </form>
           <form className="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search">
