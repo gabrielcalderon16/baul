@@ -5,11 +5,13 @@ import { Modal, Form, Badge, ListGroup } from 'react-bootstrap'
 import { useState, useEffect } from "react";
 import { BsPencilSquare, BsTrash } from 'react-icons/bs';
 
-
 function App() {
+  // TODO: agregar toast cuando se agrega, modifica o elimina un item.
+  // TODO: agregar compatibilidad con el buscador.
+  // TODO: agregar compatibilidad con el ordenamiento.
   const [validated, setValidated] = useState(false);
   const [esEditar, setearEditar] = useState(false);
-  const [idTarea, setIdTarea] = useState('');
+  const [idItem, setIdItem] = useState('');
   const [values, setValues] = useState({});
 
   const ListItems = () => {
@@ -17,7 +19,7 @@ function App() {
 
     useEffect(() => {
       // Obtener los items del LocalStorage
-      const listadoItems = obtenerTareas()
+      const listadoItems = obtenerItems()
       const itemsOrdenados = ordenarItems(listadoItems)
       console.log('items ordenados: ', itemsOrdenados)
       setListadoItems(itemsOrdenados);
@@ -47,10 +49,10 @@ function App() {
                   </div>
                   <div className="row">
                     <div className="col-3">
-                      <BsPencilSquare />
+                      <BsPencilSquare onClick={() => editarItem(item.id)}/>
                     </div>
                     <div className="col-3">
-                      <BsTrash />
+                      <BsTrash onClick={() => eliminarItem(item.id)}/>
                     </div>
                     <div className="col-3">
                       <Badge className="text-end" bg="primary" pill>
@@ -105,15 +107,15 @@ function App() {
   }
 
   const generarItem = (item) => {
-    let tareas = obtenerTareas();
-    console.log('se generara un item, tareas actuales: ', tareas);
+    let items = obtenerItems();
+    console.log('se generara un item, items actuales: ', items);
 
     const itemAEnviar = {
       ...item,
       id: generarId()
     }
-    tareas.push(itemAEnviar);
-    guardarTareas(tareas);
+    items.push(itemAEnviar);
+    guardarItems(items);
 
     // Ocultar modal
     iniciarModal();
@@ -124,16 +126,16 @@ function App() {
     return setearModal(!mostrandoseModal)
   }
 
-  function obtenerTareas() {
-    const listaTareas = localStorage.getItem("tareas")
-    ? JSON.parse(localStorage.getItem("tareas"))
+  function obtenerItems() {
+    const listaItems = localStorage.getItem("items")
+    ? JSON.parse(localStorage.getItem("items"))
     : [];
     
-    return listaTareas;
+    return listaItems;
   }
 
-  function guardarTareas(tareas) {
-    localStorage.setItem("tareas", JSON.stringify(tareas));
+  function guardarItems(items) {
+    localStorage.setItem("items", JSON.stringify(items));
   }
 
   function limpiarInputs() {
@@ -160,26 +162,30 @@ function App() {
 
   };
   
-  // function editarTarea(id) {
-  //   let tareas = obtenerTareas();
-  //   let tarea = tareas.filter((tarea) => tarea.id === id)[0];
-  //   $("#titulo").val(tarea.titulo);
-  //   $("#fecha-inicio").val(tarea.fecha.horaInicio);
-  //   $("#fecha-fin").val(tarea.fecha.horaFin);
-  //   $("#fecha").val(tarea.fecha.dia);
-  //   esEditar = true;
-  //   idTareaEditar = id;
-  //   modal.show();
-  // }
+  function editarItem(id) {
+    setearEditar(true);
+    setIdItem(id);
+    let items = obtenerItems();
+    let item = items.filter((item) => item.id === id)[0];
 
-  function eliminarTarea(id) {
-    let tareas = obtenerTareas();
+    // TODO: asignar los valores de la tarea al modal.
+    // $("#titulo").val(tarea.titulo);
+    // $("#fecha-inicio").val(tarea.fecha.horaInicio);
+    // $("#fecha-fin").val(tarea.fecha.horaFin);
+    // $("#fecha").val(tarea.fecha.dia);
 
-    const tareasFiltradas = tareas.filter((tarea) => tarea.id !== id);
+    // TODO: limpiar esEditar e idItem
+    iniciarModal();
+  }
 
-    // TODO: agregar modal de confirmacion
-    if (confirm("¿Estás seguro de que quieres eliminar esta tarea?")) {
-      guardarTareas(tareasFiltradas);
+  // TODO: solventar reactividad del componente List con el LS.
+  function eliminarItem(id) {
+    let items = obtenerItems();
+
+    const itemsFiltrados = items.filter((item) => item.id !== id);
+
+    if (confirm("¿Estás seguro de que quieres eliminar este item?")) {
+      guardarItems(itemsFiltrados);
     }
   }
 
@@ -188,13 +194,6 @@ function App() {
   //   e.stopPropagation();
   //   let id = $(this).attr("id");
   //   editarTarea(id.split("_")[1]);
-  // });
-
-  // Eliminar tarea.
-  // $(document).on("click", ".bi-x-lg", function (e) {
-  //   e.stopPropagation();
-  //   let id = $(this).attr("id");
-  //   eliminarTarea(id.split("_")[1]);
   // });
 
   // $("#form-tarea").submit(function (event) {
@@ -206,7 +205,7 @@ function App() {
   //     horaFin: $("#fecha-fin").val(),
   //   };
   //   if (esEditar) {
-  //     guardarTareaEditada(idTareaEditar, titulo, fecha);
+  //     guardarTareaEditada(idItemEditar, titulo, fecha);
   //   } else {
   //     crearTarea(titulo, fecha);
   //   }
@@ -214,7 +213,7 @@ function App() {
   // });
 
   // function guardarTareaEditada(id, titulo, fecha) {
-  //   let tareas = obtenerTareas();
+  //   let tareas = obtenerItems();
 
   //   let tarea = tareas.map((t) => {
   //     let tareaAEditar = t;
@@ -225,12 +224,12 @@ function App() {
   //     return tareaAEditar;
   //   });
 
-  //   guardarTareas(tarea);
+  //   guardarItems(tarea);
   //   mostrarTareas();
   //   modal.hide();
 
   //   esEditar = false;
-  //   idTareaEditar = 0;
+  //   idItemEditar = 0;
   // }
 
   return (
