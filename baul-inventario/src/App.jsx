@@ -55,7 +55,7 @@ function App() {
                   </div>
                   <div className="row">
                     <div className="col-3">
-                      <BsPencilSquare onClick={() => editarItem(item.id)}/>
+                      <BsPencilSquare onClick={() => editarItem(item)}/>
                     </div>
                     <div className="col-3">
                       <BsTrash onClick={() => eliminarItem(item.id)}/>
@@ -87,12 +87,22 @@ function App() {
     // Checkear valores
     if (form.checkValidity() === true) {
       setValidated(false);
-      generarItem({
-        nombre: formName,
-        descripcion: formDescription,
-        categoria: formCategory,
-        cantidad: formQuantity
-      });
+      if (esEditar) {
+        guardarItemEditado({
+          id: idItem,
+          nombre: formName,
+          descripcion: formDescription,
+          categoria: formCategory,
+          cantidad: formQuantity
+        })
+      } else {
+        generarItem({
+          nombre: formName,
+          descripcion: formDescription,
+          categoria: formCategory,
+          cantidad: formQuantity
+        });
+      }
     }
   };
 
@@ -169,17 +179,16 @@ function App() {
 
   };
   
-  function editarItem(id) {
+  function editarItem(item) {
     setearEditar(true);
-    setIdItem(id);
-    let items = obtenerItems();
-    let item = items.filter((item) => item.id === id)[0];
+    setIdItem(item.id);
+    // let items = obtenerItems();
+    // let itemEditar = items.filter((i) => i.id === item.id)[0];
 
-    // TODO: asignar los valores de la tarea al modal.
-    // $("#titulo").val(tarea.titulo);
-    // $("#fecha-inicio").val(tarea.fecha.horaInicio);
-    // $("#fecha-fin").val(tarea.fecha.horaFin);
-    // $("#fecha").val(tarea.fecha.dia);
+    setFormName(item.nombre);
+    setFormDescription(item.descripcion);
+    setFormQuantity(item.cantidad);
+    setFormCategory(item.categoria);
 
     // TODO: limpiar esEditar e idItem
     iniciarModal();
@@ -196,48 +205,27 @@ function App() {
     }
   }
 
-  // Editar tarea.
-  // $(document).on("click", ".bi-pencil", function (e) {
-  //   e.stopPropagation();
-  //   let id = $(this).attr("id");
-  //   editarTarea(id.split("_")[1]);
-  // });
+  function guardarItemEditado(item) {
+    let items = obtenerItems();
 
-  // $("#form-tarea").submit(function (event) {
-  //   event.preventDefault();
-  //   let titulo = $("#titulo").val();
-  //   let fecha = {
-  //     dia: $("#fecha").val(),
-  //     horaInicio: $("#fecha-inicio").val(),
-  //     horaFin: $("#fecha-fin").val(),
-  //   };
-  //   if (esEditar) {
-  //     guardarTareaEditada(idItemEditar, titulo, fecha);
-  //   } else {
-  //     crearTarea(titulo, fecha);
-  //   }
-  //   limpiarInputs();
-  // });
+    let itemEditado = items.map((i) => {
+      let itemAEditar = i;
+      if (itemAEditar.id === item.id) {
+        itemAEditar.nombre = item.nombre;
+        itemAEditar.descripcion = item.descripcion;
+        itemAEditar.categoria = item.categoria;
+        itemAEditar.cantidad = item.cantidad;
+      }
+      return itemAEditar;
+    });
 
-  // function guardarTareaEditada(id, titulo, fecha) {
-  //   let tareas = obtenerItems();
+    guardarItems(itemEditado);
 
-  //   let tarea = tareas.map((t) => {
-  //     let tareaAEditar = t;
-  //     if (t.id === id) {
-  //       tareaAEditar.titulo = titulo;
-  //       tareaAEditar.fecha = fecha;
-  //     }
-  //     return tareaAEditar;
-  //   });
-
-  //   guardarItems(tarea);
-  //   mostrarTareas();
-  //   modal.hide();
-
-  //   esEditar = false;
-  //   idItemEditar = 0;
-  // }
+    // Ocultar modal y limpiar valores reactivos.
+    iniciarModal()
+    setearEditar(false)
+    setIdItem('')
+  }
 
   return (
     <>
@@ -374,7 +362,7 @@ function App() {
             </div>
           </Modal.Body>
           <Modal.Footer>
-            <button className="w-100 mb-2 btn btn-lg rounded-3 btn-warning" type="submit">Agregar</button>
+            <button className="w-100 mb-2 btn btn-lg rounded-3 btn-warning" type="submit">{esEditar ? 'Actualizar' : 'Agregar'}</button>
           </Modal.Footer>
         </Form>
       </Modal>
